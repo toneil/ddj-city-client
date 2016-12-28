@@ -3,8 +3,8 @@ const parse = require('csv-parse');
 
 const geoJsonUrl = 'data/countryshapes.geojson';
 const worldDataUrl = 'data/worldData.json';
-const countryUrl = (iso2) => `http://localhost:2330/country/${iso2}?minCas=10&minInc=5&range=100&from=1995&to=2015`;
-const refugeeUrl = (iso2) => `http://localhost:2330/refugees/${iso2}`;
+const countryUrl = (iso2) => `http://ddjapi.grafsmedjan.se/country/${iso2}?minCas=10&minInc=5&range=100&from=1995&to=2015`;
+const refugeeUrl = (iso2) => `http://ddjapi.grafsmedjan.se/refugees/${iso2}`;
 
 const getCountry = (iso2) => new Promise((resolve, reject) => {
     $.getJSON(countryUrl(iso2), (countryData) => {
