@@ -1,0 +1,90 @@
+$primary-color: #FD7518;
+body {
+  background: #EAEAEA;
+}
+
+#ddj-container {
+  font-family: 'Source Sans Pro', sans-serif;
+  color: $primary-color;
+  padding: 5px;
+  height: 95%;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+#ddj-map-container {
+  box-shadow: 2px 2px 3px #888888;
+  border-radius: 5px;
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+#ddj-map {
+  width: 100%;
+  height: 50%;
+}
+
+#ddj-infobar {
+  box-shadow: 2px 2px 3px #888888;
+  border-radius: 5px;
+  background-color: #fff;
+  padding: 10px;
+  visibility: collapse;
+  height: 50%;
+}
+
+#ddj-infobar-header {
+  text-align: center;
+  #ddj-infobar-header-name {
+    border-bottom: solid;
+    font-weight: 300;
+    font-size: 2.4em;
+  }
+  #ddj-infobar-header-ratio {
+    font-weight: 200;
+    font-size: 2em;
+  }
+  span {
+    font-size: 1.3em;
+  }
+}
+
+#ddj-graph {
+  width: 100%;
+}
+
+#ddj-graph-container {
+  height: 100%
+}
+
+// Spinner
+#ddj-spinner-container {
+  position: absolute;
+  display: none;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #000;
+  opacity: 0.5;
+
+  .ddj-spinner-center {
+    height: 35%;
+  }
+  .ddj-spinner {
+    top: 0;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: ddj-spin 2s linear infinite;
+    margin: auto;
+  }
+}
+
+@keyframes ddj-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
