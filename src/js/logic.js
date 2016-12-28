@@ -10,7 +10,7 @@ const addCircle = (city, inConflict, markersLayer) => {
     const circle = L.circle([city.latitude, city.longitude],
         styling.cityCircle(city, inConflict)
     ).addTo(markersLayer);
-    const conflictString = inConflict ? 'In conflict zone' : 'In safe zone';
+    const conflictString = inConflict ? 'Has seen conflict since 1995' : 'Has not seen conflict since 1995';
     circle.bindPopup(`
         <strong>${city.name}</strong>
         <hr/>
