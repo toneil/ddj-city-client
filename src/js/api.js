@@ -4,8 +4,8 @@ const parse = require('csv-parse');
 const geoJsonUrl = 'data/countryshapes.geojson';
 const worldDataUrl = 'data/worldData.json';
 const refugeeUrl = 'data/refugeesByCountryAndYear.json';
-const incidentsUrl = (iso2) => `http://localhost:2330/incidents/${iso2}`;
-const countryUrl = (iso2) => `http://localhost:2330/country/${iso2}`;
+const incidentsUrl = (iso2) => `http://ddjapi.grafsmedjan.se/incidents/${iso2}`;
+const countryUrl = (iso2) => `http://ddjapi.grafsmedjan.se/country/${iso2}`;
 
 const globalData = () => new Promise((resolve, reject) => {
     $.getJSON(geoJsonUrl, (geojson) => {
