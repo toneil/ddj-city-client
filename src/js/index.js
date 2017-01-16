@@ -23,6 +23,22 @@ const onEachFeature = (map, markersLayer) =>
         });
     };
 
+const legend = L.control({position: 'topright'});
+
+legend.onAdd = (map) => {
+    const div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, 1000, 50000, 100000, 500000, 1000000];
+
+    div.innerHTML += '<span class="legend-header">Total PoC in 2014</span><br/>';
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + styling.getColor(grades[i] + 1) + '"></i> ' +
+            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+    }
+    return div;
+};
+legend.addTo(map);
+
 api.globalData().then(({worldData, geojson}) => {
     L.geoJson(geojson, {
         onEachFeature: onEachFeature(map, markersLayer),
