@@ -3,14 +3,9 @@ const parse = require('csv-parse');
 
 const geoJsonUrl = 'data/countryshapes.geojson';
 const worldDataUrl = 'data/worldData.json';
-const countryUrl = (iso2) => `http://ddjapi.grafsmedjan.se/country/${iso2}?minCas=10&minInc=5&range=100&from=1995&to=2015`;
-const refugeeUrl = (iso2) => `http://ddjapi.grafsmedjan.se/refugees/${iso2}`;
-
-const getCountry = (iso2) => new Promise((resolve, reject) => {
-    $.getJSON(countryUrl(iso2), (countryData) => {
-        resolve(countryData);
-    });
-});
+const refugeeUrl = 'data/refugeesByCountryAndYear.json';
+const incidentsUrl = (iso2) => `http://localhost:2330/incidents/${iso2}`;
+const countryUrl = (iso2) => `http://localhost:2330/country/${iso2}`;
 
 const globalData = () => new Promise((resolve, reject) => {
     $.getJSON(geoJsonUrl, (geojson) => {
@@ -23,14 +18,27 @@ const globalData = () => new Promise((resolve, reject) => {
     });
 });
 
+const getCountryData = (iso2) => new Promise((resolve, reject) => {
+    $.getJSON(countryUrl(iso2), (countryData) => {
+        resolve(countryData);
+    });
+});
+
+const getIncidents = (iso2) => new Promise((resolve, reject) => {
+    $.getJSON(incidentsUrl(iso2), (incidents) => {
+        resolve(incidents);
+    });
+});
+
 const getRefugeeStats = (iso2) => new Promise((resolve, reject) => {
-    $.get(refugeeUrl(iso2), (refugeeData) => {
-        resolve(refugeeData);
+    $.getJSON(refugeeUrl, (refugeeData) => {
+        resolve(refugeeData[iso2]);
     });
 });
 
 module.exports = {
+    getIncidents,
+    getCountryData,
     globalData,
-    getCountry,
     getRefugeeStats,
 };

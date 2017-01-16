@@ -2,19 +2,23 @@ const $ = require('jquery');
 const L = require('leaflet');
 const _ = require('lodash');
 const Chart = require('chart.js');
+const Promise = require('bluebird');
 
 const api = require('./api');
 const styling = require('./styling');
 
-const addCircle = (city, inConflict, markersLayer) => {
-    const circle = L.circle([city.latitude, city.longitude],
-        styling.cityCircle(city, inConflict)
+const addIncident = (incident, markersLayer) => {
+    const dot = L.circle([incident.latitude, incident.longitude],
+        styling.incidentDot(incident)
     ).addTo(markersLayer);
-    const conflictString = inConflict ? 'Has seen conflict since 1995' : 'Has not seen conflict since 1995';
+};
+
+const addCity = (city, markersLayer) => {
+    const circle = L.circle([city.latitude, city.longitude],
+        styling.cityCircle(city)
+    ).addTo(markersLayer);
     circle.bindPopup(`
         <strong>${city.name}</strong>
-        <hr/>
-        <em>${conflictString}</em>
         <br/>
         <span>Population: ${city.population}</span>
     `);
@@ -41,9 +45,10 @@ const setChart = (iso2) => {
                 labels: years,
                 datasets: [{
                     label: 'Refugees',
-                    fill: true,
+                    fill: false,
+                    borderWidth: 5,
                     lineTension: 0,
-                    backgroundColor: 'rgba(156, 39, 176,0.5)',
+                    borderColor: 'rgba(156, 39, 176,0.5)',
                     data: _
                         .chain(stats)
                         .keys()
@@ -51,22 +56,36 @@ const setChart = (iso2) => {
                         .map(k => stats[k].refugees)
                         .value()
                 }, {
-                    label: 'IPDs',
-                    fill: true,
+                    label: 'IDPs',
+                    fill: false,
+                    borderWidth: 5,
                     lineTension: 0,
-                    backgroundColor: 'rgba(255,160,0,0.5)',
+                    borderColor: 'rgba(255,160,0,0.5)',
                     data: _
                         .chain(stats)
                         .keys()
                         .sort()
                         .map(k => stats[k].idps)
                         .value()
+                }, {
+                    label: 'Other PoC',
+                    fill: false,
+                    borderWidth: 5,
+                    lineTension: 0,
+                    borderColor: 'rgba(54,160,0,0.5)',
+                    data: _
+                        .chain(stats)
+                        .keys()
+                        .sort()
+                        .map(k => stats[k].poc)
+                        .value()
                 }]
             },
             options: {
+                showLines: true,
                 scales: {
                     yAxes: [{
-                        stacked: true
+                        stacked: false,
                     }]
                 }
             }
@@ -75,13 +94,13 @@ const setChart = (iso2) => {
 };
 
 const updateInfoHeader = (countryData) => {
-    const { confCities, safeCities, name, population } = countryData;
-    const ratio = confCities.length + safeCities.length > 0 ?
-        confCities.length / (confCities.length + safeCities.length) :
-        0;
-    const ratioString = (ratio * 100).toFixed(0);
+    const { name, population } = countryData;
     $('#ddj-infobar-header-name').text(name);
-    $('#ddj-infobar-header-ratio').text(`${ratioString}%`);
+};
+
+const setRefugeeInfoBar = (total, ratio) => {
+    $('#ddj-infobar-header-ratio').text(ratio.toFixed(2));
+    $('#ddj-infobar-header-total').text(total);
 };
 
 const selectCountry = (e, map, markersLayer) => {
@@ -90,15 +109,33 @@ const selectCountry = (e, map, markersLayer) => {
     markersLayer.clearLayers();
     const { iso2 } = e.target.feature.properties;
     setChart(iso2);
-    api.getCountry(iso2)
-    .then(countryData => {
-        $('#ddj-spinner-container').css('display', 'none');
-        updateInfoHeader(countryData);
-        countryData.confCities.forEach(
-            city => addCircle(city, true, markersLayer));
-        countryData.safeCities.forEach(
-            city => addCircle(city, false, markersLayer));
-    });
+    const fethcRefugees = api.getRefugeeStats(iso2)
+        .then(stats => {
+            if (!stats) return;
+            const year = '2014';
+            if (stats.hasOwnProperty(year)) {
+                const { idps, poc, refugees }  = stats[year];
+                const total = idps + poc + refugees;
+                const ratio = idps / (refugees + 1);
+                setRefugeeInfoBar(total, ratio);
+            }
+        });
+    const fetchIncidents = api.getIncidents(iso2)
+        .then(incidents => {
+            _.forEach(incidents, incident => {
+                addIncident(incident, markersLayer);
+            });
+        });
+    const fetchCountryData = api.getCountryData(iso2)
+        .then(countryData => {
+            updateInfoHeader(countryData);
+            _.forEach(countryData.cities, c => {
+                addCity(c, markersLayer);
+            });
+        });
+    Promise
+        .all([fethcRefugees, fetchIncidents, fetchCountryData])
+        .then(() => $('#ddj-spinner-container').css('display', 'none'));
 };
 
 module.exports = {

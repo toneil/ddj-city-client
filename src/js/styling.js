@@ -1,27 +1,40 @@
 const _ = require('lodash');
 
+const getColor = (r) => {
+    if (!r || r === '-')
+        return 'gray';
+    return  r >=1000000 ? '#993404' :
+            r > 500000  ? '#d95f0e' :
+            r > 100000  ? '#fe9929' :
+            r > 50000 ? '#fed98e' :
+            r > 1000 ? '#ffffd4' :
+            '#ffffff';
+};
+
 const fillColor = (feature, worldData) => {
     const iso2 = feature.properties.iso2;
     const country = _.find(worldData, c => c.iso2 === iso2);
-    const r = country.ratio;
-    if (!r)
-        return 'gray';
-    return r >= 1 ? '#800026' :
-         r > 0.8  ? '#BD0026' :
-         r > 0.6  ? '#E31A1C' :
-         r > 0.4  ? '#FC4E2A' :
-         '#FD8D3C' ;
+    return getColor(country.total_poc);
 };
 
-const cityCircle = (city, inConflict) => {
-    const color = inConflict ? 'red' : 'blue';
-    const fillColor = inConflict ? 'black' : 'white';
+const incidentDot = (incident) => {
+    const r = Math.sqrt(incident.best_est);
+    return {
+        color: 'red',
+        radius: r,
+        weight: 1,
+    };
+};
+
+const cityCircle = (city) => {
+    const color = 'blue';
+    const fillColor = 'white';
     const radius = 5000 + Math.sqrt(city.population) * 20;
     return {
         color,
         fillColor,
         weight: 1,
-        fillOpacity: 0.9,
+        fillOpacity: 0.2,
         radius,
     };
 };
@@ -56,6 +69,8 @@ const selectCountry = (e, map) => {
 };
 
 module.exports = {
+    getColor,
+    incidentDot,
     styleCountry,
     cityCircle,
     highlight,
