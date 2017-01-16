@@ -27,6 +27,7 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
+    "bluebird": "^3.4.7",
     "chart.js": "^2.4.0",
     "csv-parse": "^1.1.7",
     "jquery": "^3.1.1",
